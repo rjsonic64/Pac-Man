@@ -28,53 +28,62 @@ void Ghosts::setGhostPosition(std::pair<int, int> coords, int key) {
 // Behaviours
 void Ghosts::Follow(Screen& screen, Ghost& caller, std::pair<int, int>& ghostCoords, std::pair<int, int>& plrCoords) {
     // splitting the values returned from checkTiles function every frame instead of calling it multiple times
-    int intersections = checkTiles(screen, ghostCoords, plrCoords, caller.currentDir).first;
-    Movement newDir = checkTiles(screen, ghostCoords, plrCoords, caller.currentDir).second;
+    auto collisionCheck = checkTiles(screen, ghostCoords, plrCoords, caller.currentDir);
+    int intersections = collisionCheck.first;
+    Movement newDir = collisionCheck.second;
 
     switch (caller.currentDir) {
         case Movement::Up :
             if (screen.isWallUp(ghostCoords)) {
                caller.currentDir = newDir;
+               std::cout << "Up";
                break;
             }
 
             if (intersections >= 2) {
                 caller.currentDir = newDir;
-                std::cout << intersections;
             }
+
+            std::cout << "Up";
             break;
         case Movement::Down :
             if (screen.isWallDown(ghostCoords)) {
                 caller.currentDir = newDir;
+                std::cout << "Down";
                 break;
             }
 
             if (intersections >= 2) {
                 caller.currentDir = newDir;
-                std::cout << intersections;
             }
+
+            std::cout << "Down";
             break;
         case Movement::Left :
             if (screen.isWallLeft(ghostCoords)) {
                 caller.currentDir = newDir;
+                std::cout << "Left";
                 break;
             }
 
             if (intersections >= 2) {
                 caller.currentDir = newDir;
-                std::cout << intersections;
             }
+
+            std::cout << "Left";
             break;
         case Movement::Right :
             if (screen.isWallRight(ghostCoords)) {
                 caller.currentDir = newDir;
+                std::cout << "Right";
                 break;
             }
 
             if (intersections >= 2) {
                 caller.currentDir = newDir;
-                std::cout << intersections;
             }
+
+            std::cout << "Right";
             break;
     }
     
@@ -114,25 +123,25 @@ std::pair<int, Ghosts::Movement> Ghosts::checkTiles(Screen& screen, std::pair<in
             break;
     }
 
-    if (!screen.isWallLeft(ghostCoords) && !cancelRight) {
+    if (!screen.isWallLeft(ghostCoords) && !cancelLeft) {
         distLeft = abs((ghostCoords.second - 1) - plrCoords.second) + abs(ghostCoords.first - plrCoords.first);
         distances.push_back(distLeft);
         options.push_back(Movement::Left);
         intersections++;
     }
-    if (!screen.isWallRight(ghostCoords) && !cancelLeft) {
+    if (!screen.isWallRight(ghostCoords) && !cancelRight) {
         distRight = abs((ghostCoords.second + 1) - plrCoords.second) + abs(ghostCoords.first - plrCoords.first);
         distances.push_back(distRight);
         options.push_back(Movement::Right);
         intersections++;
     }
-    if (!screen.isWallDown(ghostCoords) && !cancelUp) {
+    if (!screen.isWallDown(ghostCoords) && !cancelDown) {
         distDown = abs(ghostCoords.second - plrCoords.second) + abs((ghostCoords.first + 1) - plrCoords.first);
         distances.push_back(distDown);
         options.push_back(Movement::Down);
         intersections++;
     }
-    if (!screen.isWallUp(ghostCoords) && !cancelDown) {
+    if (!screen.isWallUp(ghostCoords) && !cancelUp) {
         distUp = abs(ghostCoords.second - plrCoords.second) + abs((ghostCoords.first - 1) - plrCoords.first);
         distances.push_back(distUp);
         options.push_back(Movement::Up);
