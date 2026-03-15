@@ -31,7 +31,7 @@ std::vector<std::vector<Screen::TileType>> Screen::Init(std::vector<std::string>
                     break;
                 case 'B' :
                     initMap[y][x] = TileType::Blinky;
-                    ghosts.setGhostPosition(std::make_pair(y, x), 1);
+                    ghosts.setGhostPosition(std::make_pair(y, x), 0);
                     break;
             }
         }
@@ -97,8 +97,10 @@ void Screen::relayPlayerInput(int inputChangeX, int inputChangeY) { // Input Rea
         pelletCount--;
     }
 
+    int width = static_cast<int>(TileMap[0].size());
+
     plrCoords.first = (TileMap[plrCoords.first + inputChangeY][plrCoords.second] == TileType::Wall || TileMap[plrCoords.first + inputChangeY][plrCoords.second] == TileType::Fence) ? plrCoords.first : plrCoords.first + inputChangeY;
-    plrCoords.second = (TileMap[plrCoords.first][(plrCoords.second + inputChangeX + (int)TileMap[0].size()) % (int)TileMap[0].size()] == TileType::Wall || TileMap[plrCoords.first][(plrCoords.second + inputChangeX + (int)TileMap[0].size()) % (int)TileMap[0].size()] == TileType::Fence) ? plrCoords.second : (plrCoords.second + inputChangeX + (int)TileMap[0].size()) % (int)TileMap[0].size();
+    plrCoords.second = (TileMap[plrCoords.first][(plrCoords.second + inputChangeX + width) % width] == TileType::Wall || TileMap[plrCoords.first][(plrCoords.second + inputChangeX + width) % width] == TileType::Fence) ? plrCoords.second : (plrCoords.second + inputChangeX + width) % width;
 
     TileMap[plrCoords.first][plrCoords.second] = TileType::Player;
 }
@@ -107,33 +109,44 @@ std::pair<int, int> Screen::getPlr() {
     return plrCoords;
 }
 
-void Screen::relayGhostInput(std::pair<int, int>& coords, int inputChangeY, int inputChangeX) {
-    TileType prev = TileMap[coords.first][coords.second];
-    TileMap[coords.first][coords.second] = TileType::Empty;
+void Screen::relayGhostInput(std::pair<int, int>& coords, int inputChangeY, int inputChangeX, int key) {
+    TileMap[coords.first][coords.second] = ghostTileData[key];
 
-    coords.first += inputChangeY;
-    coords.second += inputChangeX;
+    int width = static_cast<int>(TileMap[0].size());
+    int newY = coords.first + inputChangeY;
+    int newX = ((coords.second + inputChangeX) + width) % width;
 
-    TileMap[coords.first][coords.second] = prev;
+    if (TileMap[newY][newX] == TileType::Player) {
+        std::cout << "Hit";
+    }
+
+    ghostTileData[key] = TileMap[newY][newX];
+
+    coords.first = newY;
+    coords.second = newX;
+
+    switch (key) {
+        case 0 :
+            TileMap[newY][newX] = TileType::Blinky;
+            break;
+    }
 }
 
 // Ghost Collision detection
 bool Screen::isWallUp(std::pair<int, int>& coords) {
-    if (TileMap[coords.first - 1][coords.second] == TileType::Wall) return true;
-    return false;
+    return TileMap[coords.first - 1][coords.second] == TileType::Wall;
 }
 
 bool Screen::isWallDown(std::pair<int, int>& coords) {
-    if (TileMap[coords.first + 1][coords.second] == TileType::Wall) return true;
-    return false;
+    return TileMap[coords.first + 1][coords.second] == TileType::Wall;
 }
 
 bool Screen::isWallLeft(std::pair<int, int>& coords) {
-    if (TileMap[coords.first][coords.second - 1] == TileType::Wall) return true;
-    return false;
+    int width = static_cast<int>(TileMap[0].size());
+    return TileMap[coords.first][(coords.second - 1 + width) % width] == TileType::Wall;
 }
 
 bool Screen::isWallRight(std::pair<int, int>& coords) {
-    if (TileMap[coords.first][coords.second + 1] == TileType::Wall) return true;
-    return false;
+    int width = static_cast<int>(TileMap[0].size());
+    return TileMap[coords.first][(coords.second + 1 + width) % width] == TileType::Wall;
 }

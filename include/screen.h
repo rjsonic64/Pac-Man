@@ -20,6 +20,7 @@ private:
         Player,
         Blinky
     };
+
     std::vector<std::string> map = {
         "############################",
         "#............##............#",
@@ -63,6 +64,9 @@ private:
     std::vector<std::vector<TileType>> Init(std::vector<std::string>&, Ghosts&);
     static std::pair<int, int> playerCoord(std::vector<std::vector<TileType>>&);
 
+    // vector to store ghost tile data per move
+    std::vector<TileType> ghostTileData;
+
     void setNonBlocking(bool enable) {
         struct termios ttystate;
         tcgetattr(STDIN_FILENO, &ttystate);
@@ -81,7 +85,10 @@ private:
     }
 
 public:
-    Screen(Ghosts& ghosts) : pelletCount(0), TileMap(Init(map, ghosts)), plrCoords(playerCoord(TileMap)) { setNonBlocking(true); }
+    Screen(Ghosts& ghosts) : pelletCount(0), TileMap(Init(map, ghosts)), plrCoords(playerCoord(TileMap)) { 
+        setNonBlocking(true);
+        ghostTileData.push_back(TileType::Empty);
+    }
 
     // Setup
     bool hasAllPickups();
@@ -94,13 +101,15 @@ public:
     void relayPlayerInput(int, int);
     std::pair<int, int> getPlr();
 
-    void relayGhostInput(std::pair<int, int>&, int, int);
+    void relayGhostInput(std::pair<int, int>&, int y, int x, int key);
 
     // Ghost collision detection
     bool isWallUp(std::pair<int, int>&);
     bool isWallDown(std::pair<int, int>&);
     bool isWallLeft(std::pair<int, int>&);
     bool isWallRight(std::pair<int, int>&);
+
+    static bool hitPlayer() { return true; }
 };
 
 // Screen/Renderer header file
