@@ -84,6 +84,8 @@ private:
         tcsetattr(STDIN_FILENO, TCSANOW, &ttystate);
     }
 
+    static bool hitPlayer;
+
 public:
     Screen(Ghosts& ghosts) : pelletCount(0), TileMap(Init(map, ghosts)), plrCoords(playerCoord(TileMap)) { 
         setNonBlocking(true);
@@ -109,7 +111,7 @@ public:
     bool isWallLeft(std::pair<int, int>&);
     bool isWallRight(std::pair<int, int>&);
 
-    static bool hitPlayer() { return true; }
+    static bool hasHitPlayer() { return hitPlayer; }
 };
 
 // Screen/Renderer header file

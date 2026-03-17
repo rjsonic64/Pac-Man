@@ -2,8 +2,8 @@
 #include "pac-man.h"
 #include "ghosts.h"
 
-#include<thread>
-#include<chrono>
+#include <thread>
+#include <chrono>
 #include <iostream>
 
 using namespace std;
@@ -18,6 +18,7 @@ int main() {
 
     while (GameLoop) {
         if (screen.hasAllPickups()) break;
+        if (screen.hasHitPlayer()) break;
 
         if (plr.kbhit()) {
             char c;
@@ -40,7 +41,7 @@ int main() {
         }
 
         plr.inputHandling(input, screen);
-        ghost.blinkyBehaviour(screen);
+        ghost.ghostLoop(screen);
         screen.updateMap();
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }

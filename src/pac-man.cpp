@@ -1,6 +1,6 @@
 #include "pac-man.h"
 
-#include<iostream>
+#include <iostream>
 
 bool Player::kbhit() {
     fd_set set;

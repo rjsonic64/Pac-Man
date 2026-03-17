@@ -21,8 +21,14 @@ private:
         Right
     };
 
+    enum class ghostType {
+        Blinky
+    };
+
     struct Ghost {
+        ghostType currentGhost;
         Movement currentDir;
+        Behaviour currentBehaviour;
         std::pair<int, int> loc;
     };
 
@@ -31,20 +37,23 @@ private:
 public:
     Ghosts() {
         Ghost Blinky;
+        Blinky.currentGhost = ghostType::Blinky;
+        Blinky.currentBehaviour = Behaviour::Follow;
         Blinky.currentDir = Movement::Up;
         ghosts.push_back(Blinky);
     }
 
+    void ghostLoop(Screen&);
+    void updateGhosts(Screen&, Ghost&, Behaviour);
+
     // General movement
-    void setMovement(std::pair<int, int>&, Screen&, Movement, int);
+    void setMovement(std::pair<int, int>&, Screen&, Movement, ghostType);
+    auto sendGhostToScreen(ghostType);
 
     // Define positions
     void setGhostPosition(std::pair<int, int>, int key);
     std::pair<int, Movement> checkTiles(Screen&, std::pair<int, int>&, std::pair<int, int>&, Movement);
 
     // Behaviours
-    void Follow(Screen&, Ghost&, std::pair<int, int>&, int);
-
-    // Blinky
-    void blinkyBehaviour(Screen&);
+    void Follow(Screen&, Ghost&, std::pair<int, int>&, ghostType);
 };

@@ -5,20 +5,31 @@
 #include <string>
 #include <iostream>
 
-void Ghosts::setMovement(std::pair<int, int>& coords, Screen& screen, Movement move, int key) {
-    switch (move) {
-        case Movement::Up :
-            screen.relayGhostInput(coords, -1, 0, key);
-            break;
-        case Movement::Down :
-            screen.relayGhostInput(coords, 1, 0, key);
-            break;
-        case Movement::Left :
-            screen.relayGhostInput(coords, 0, -1, key);
-            break;
-        case Movement::Right :
-            screen.relayGhostInput(coords, 0, 1, key);
-            break;
+// Main ghost loop
+void Ghosts::ghostLoop(Screen& screen) {
+    for (Ghost& ghost : ghosts) {
+        updateGhosts(screen, ghost, ghost.currentBehaviour);
+    }
+}
+
+// Set ghost behaviour
+void Ghosts::updateGhosts(Screen& screen, Ghost& ghost, Behaviour state) {
+    std::pair<int, int> plr = screen.getPlr();
+
+    switch (state) {
+        case Behaviour::Follow :
+            switch (ghost.currentGhost) {
+                case ghostType::Blinky :
+                    Follow(screen, ghost, plr, ghost.currentGhost);
+                    break;
+            }
+    }
+}
+
+auto Ghosts::sendGhostToScreen(ghostType ghost) {
+    switch (ghost) {
+        case ghostType::Blinky :
+            return 0;
     }
 }
 
@@ -26,8 +37,25 @@ void Ghosts::setGhostPosition(std::pair<int, int> coords, int key) {
     ghosts[key].loc = coords;
 }
 
+void Ghosts::setMovement(std::pair<int, int>& coords, Screen& screen, Movement move, ghostType ghost) {
+    switch (move) {
+        case Movement::Up :
+            screen.relayGhostInput(coords, -1, 0, sendGhostToScreen(ghost));
+            break;
+        case Movement::Down :
+            screen.relayGhostInput(coords, 1, 0, sendGhostToScreen(ghost));
+            break;
+        case Movement::Left :
+            screen.relayGhostInput(coords, 0, -1, sendGhostToScreen(ghost));
+            break;
+        case Movement::Right :
+            screen.relayGhostInput(coords, 0, 1, sendGhostToScreen(ghost));
+            break;
+    }
+}
+
 // Behaviours
-void Ghosts::Follow(Screen& screen, Ghost& caller, std::pair<int, int>& plrCoords, int key) {
+void Ghosts::Follow(Screen& screen, Ghost& caller, std::pair<int, int>& plrCoords, ghostType currGhost) {
     // splitting the values returned from checkTiles function every frame instead of calling it multiple times
     auto collisionCheck = checkTiles(screen, caller.loc, plrCoords, caller.currentDir);
     int intersections = collisionCheck.first;
@@ -53,15 +81,8 @@ void Ghosts::Follow(Screen& screen, Ghost& caller, std::pair<int, int>& plrCoord
     if (hitwall || intersections >= 2) {
         caller.currentDir = newDir;
     }
-
-    int index;
-    switch (key) {
-        case 1 :
-            index = 0;
-            break;
-    }
     
-    setMovement(caller.loc, screen, caller.currentDir, index);
+    setMovement(caller.loc, screen, caller.currentDir, currGhost);
 }
 
 // The formula is literally called the distance formula- remember that!!

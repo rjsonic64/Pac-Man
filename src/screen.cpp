@@ -3,6 +3,9 @@
 
 #include <iostream>
 
+// Set static variables
+bool Screen::hitPlayer = false;
+
 void Screen::setBlockingFalse() {
     Screen::setNonBlocking(false);
 }
@@ -117,7 +120,7 @@ void Screen::relayGhostInput(std::pair<int, int>& coords, int inputChangeY, int 
     int newX = ((coords.second + inputChangeX) + width) % width;
 
     if (TileMap[newY][newX] == TileType::Player) {
-        std::cout << "Hit";
+        hitPlayer = true;
     }
 
     ghostTileData[key] = TileMap[newY][newX];
